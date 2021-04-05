@@ -28,12 +28,15 @@ function selectCategory(){
 	arrow.addEventListener('click', ()=>{
 		document.getElementById("categories-container").classList.remove("hidden");
 		document.getElementById("options-container").classList.add("hidden");
+		document.getElementById("options-container").innerHTML = "";
 		menu.innerText = "Menu";
 		arrow.classList.add("hidden");
 	});
 	categories.forEach(item => item.addEventListener('click', ()=>{
-		menu.innerText = "Categories";
+		menu.innerText = "Dishes";
 		arrow.classList.remove("hidden");
+		document.getElementById("categories-container").classList.add("hidden");
+		document.getElementById("options-container").classList.remove("hidden");
 		const url = `https://www.themealdb.com/api/json/v1/1/filter.php?c=${item.name}`
 		options(url);
 		//hay que resolver que no muestra una segunda categoria si se regresa atrás
@@ -56,7 +59,6 @@ function getOptions(resp){
 }
 
 function renderOption(image, name, id){
-	//document.getElementById("categories-container").classList.add("hidden");
 	const optionsContainer = document.getElementById("options-container");
 	image = `<img class="option-image" src="${image}">`;
 	name = `<h2>${name}</h2>`;
@@ -87,10 +89,11 @@ selectedDish
 }*/
 
 function renderDish(resp) {
+	document.getElementById("options-container").classList.add("hidden");
 	menu.classList.add("hidden");
 	arrow.classList.add("hidden");
 	dishArrow.classList.remove("hidden");
-	document.getElementById("options-container").classList.add("hidden");
+	//document.getElementById("options-container").classList.add("hidden");
 	document.getElementById("dish-container").classList.remove("hidden");
 	const imgContainer = document.getElementById("dish-name-img");
 	const preparation = document.getElementById("preparation");
