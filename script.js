@@ -1,4 +1,7 @@
-const url = "https://www.themealdb.com/api/json/v1/1/categories.php";
+const menu = document.getElementById("menu");
+const arrow = document.getElementById("arrow-button");
+const dishArrow = document.getElementById("arrow-dish");
+const url = "https://www.themealdb.com/api/json/v1/1/categories.php"
 const promise = fetch(url);
 
 promise
@@ -7,58 +10,122 @@ promise
 	.catch((error) => console.log(error));
 
 const getData = (resp) =>{
-//	const container = document.querySelector("#container");
 	const arrayCategories = resp.categories;
-	console.log(arrayCategories);
 	arrayCategories.map(item => renderCategories(item.strCategoryThumb, item.strCategory));
 	selectCategory();
 }
 
 function renderCategories(image, category){
-	const container = document.querySelector("#container");
+	const container = document.querySelector("#categories-container");
 	image = `<img class="image" src="${image}">`;
 	categories = `<h2>${category}</h2>`;
 	div	= `<div class="item">${image} ${categories}</div>`
-	button = `<button class="button" href="https://www.themealdb.com/api/json/v1/1/filter.php?c=${category}">${div}</button>`;
+	button = `<button class="button-item" name="${category}" href="https://www.themealdb.com/api/json/v1/1/filter.php?c=${category}">${div}</button>`;
 	container.innerHTML += button;
 }
-
-
-
 function selectCategory(){
-	const categories = document.querySelectorAll("button");
-	console.log(categories);
-	categories.forEach(category => {
-		category.addEventListener('click',() =>{
-			console.log(category);
-			//hacer modal para las optiones
-			getOptions(category.attributes.href.nodeValue);
-		});
+	const categories = document.querySelectorAll(".button-item");
+	arrow.addEventListener('click', ()=>{
+		document.getElementById("categories-container").classList.remove("hidden");
+		document.getElementById("options-container").classList.add("hidden");
+		menu.innerText = "Menu";
+		arrow.classList.add("hidden");
 	});
+	categories.forEach(item => item.addEventListener('click', ()=>{
+		menu.innerText = "Categories";
+		arrow.classList.remove("hidden");
+		const url = `https://www.themealdb.com/api/json/v1/1/filter.php?c=${item.name}`
+		options(url);
+		//hay que resolver que no muestra una segunda categoria si se regresa atrás
+	}));
 }
 
-function getOptions(url){
+function options(url){
 	let options = fetch(url);
 	options
-		.then((response) => response.json())
-		.then((response) => checkOptions(response))
-		.catch((error) => console.log(error));
+	.then((response) => response.json())
+	.then((response) => getOptions(response))
+	.catch((error) => console.log(error));
 }
 
-function checkOptions(resp){
-	console.log(resp);
-	const container = document.querySelector("#options");
-	const arrayMeals = resp.meals;
-	console.log(arrayMeals);
-	arrayMeals.map(item => renderOptions(item.strMealThumb, item.strMeal));
+function getOptions(resp){
+	const arrayOptions = resp.meals;
+	document.getElementById("categories-container").classList.add("hidden");
+	arrayOptions.map(option => renderOption(option.strMealThumb, option.strMeal, option.idMeal));
+	selectOption();
 }
 
-function renderOptions(image, category){
-	const container = document.querySelector("#options");
-	image = `<img class="imageMeal" src="${image}">`;
-	categories = `<h2>${category}</h2>`;
-	div	= `<div class="item">${image} ${categories}</div>`
-	button = `<button class="button" href="https://www.themealdb.com/api/json/v1/1/filter.php?c=${category}">${div}</button>`;
-	options.innerHTML += button;
+function renderOption(image, name, id){
+	//document.getElementById("categories-container").classList.add("hidden");
+	const optionsContainer = document.getElementById("options-container");
+	image = `<img class="option-image" src="${image}">`;
+	name = `<h2>${name}</h2>`;
+	div	= `<div class="item">${image} ${name}</div>`
+	button = `<button class="button-option" id="${id}" name="${name}">${div}</button>`;
+	optionsContainer.innerHTML += button;
 }
-11111111111111111111111111111111111111111111111111111111111111111111111111111111
+function selectOption(){
+	const options = document.querySelectorAll(".button-option");
+	options.forEach(option => option.addEventListener('click', ()=>{
+		const url = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${option.id}`
+		dish(url);
+	}));
+}
+
+function dish(url){
+	const selectedDish = fetch(url);
+
+selectedDish
+	.then((response) => response.json())
+	.then((response) => renderDish(response))
+	.catch((error) => console.log(error));
+}
+
+/*function renderDish(resp){
+	const dish = resp.meals[0];
+	const dishContainer = document.getElementById("dish-container");
+}*/
+
+function renderDish(resp) {
+	menu.classList.add("hidden");
+	arrow.classList.add("hidden");
+	dishArrow.classList.remove("hidden");
+	document.getElementById("options-container").classList.add("hidden");
+	document.getElementById("dish-container").classList.remove("hidden");
+	const imgContainer = document.getElementById("dish-name-img");
+	const preparation = document.getElementById("preparation");
+	imgContainer.innerHTML = `<img class="dish-img" src="${resp.meals[0].strMealThumb}">`
+	preparation.innerHTML = `<p class="preparation-text">${resp.meals[0].strInstructions}</p>`
+	document.getElementById("dish-name").innerText = resp.meals[0].strMeal;
+	const ingredientsContainer = document.getElementById("ingredients");
+	const measures = [];
+  	const array = resp.meals;
+	const ingredients = [];
+  	array.forEach((item) => {
+  		for (let ing in item) {
+    		if (ing.includes("Ingredient")) ingredients.push(item[ing]);
+    	}
+	});
+	array.forEach((item) => {
+		for (let ing in item) {
+    		if (ing.includes("Measure")) measures.push(item[ing]);
+    	}
+	});
+  for (let i = 0 ; i < measures.length; i++) {
+  	if (measures[i] === "" || measures[i] === " ") {
+  		i++;
+  	}else{
+  		ingredientsContainer.innerHTML += `<li class="ingredient" id="ingredient">${measures[i]} ${ingredients[i]}</li>`;
+  	}
+  }
+  close();
+}
+
+function close(){
+	dishArrow.addEventListener('click', ()=>{
+		document.getElementById("options-container").classList.remove("hidden");
+		document.getElementById("dish-container").classList.add("hidden");
+		menu.classList.remove("hidden");
+		arrow.classList.remove("hidden");
+	});
+}
