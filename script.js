@@ -126,8 +126,10 @@ function renderDish(resp) {
 
 function close(){
 	dishArrow.addEventListener('click', ()=>{
+		dishArrow.classList.add("hidden");
 		document.getElementById("options-container").classList.remove("hidden");
 		document.getElementById("dish-container").classList.add("hidden");
+		document.getElementById("ingredients").innerHTML = "";
 		menu.classList.remove("hidden");
 		arrow.classList.remove("hidden");
 	});
